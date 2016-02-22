@@ -50,7 +50,7 @@ Description=Example
 [Service]
 User=core
 Environment=AWS_REGION=us-east-1
-ExecStartPre=/bin/bash -c 'eval $(docker run -e AWS_REGION rlister/ecr-login)'
+ExecStartPre=/bin/bash -c 'eval $(docker run -e AWS_REGION evenco/ecr-login)'
 ExecStartPre=-/usr/bin/docker rm example
 ExecStartPre=/usr/bin/docker pull 1234567890.dkr.ecr.us-east-1.amazonaws.com/example:latest
 ExecStart=/usr/bin/docker run --name example 1234567890.dkr.ecr.us-east-1.amazonaws.com/example:latest
@@ -68,7 +68,7 @@ go build ./ecr-login.go
 ```
 version=0.0.1
 CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo ecr-login.go
-docker build -t rlister/ecr-login:${version} .
-docker tag -f rlister/ecr-login:${version} rlister/ecr-login:latest
-docker push rlister/ecr-login
+docker build -t evenco/ecr-login:${version} .
+docker tag -f evenco/ecr-login:${version} evenco/ecr-login:latest
+docker push evenco/ecr-login
 ```

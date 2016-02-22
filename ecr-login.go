@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/base64"
-	// "github.com/rlister/ecr-login/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws"
-	"github.com/rlister/ecr-login/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/session"
-	"github.com/rlister/ecr-login/Godeps/_workspace/src/github.com/aws/aws-sdk-go/service/ecr"
+	// "github.com/evenco/ecr-login/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws"
+	"github.com/evenco/ecr-login/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/session"
+	"github.com/evenco/ecr-login/Godeps/_workspace/src/github.com/aws/aws-sdk-go/service/ecr"
 	"os"
 	"strings"
 	"text/template"

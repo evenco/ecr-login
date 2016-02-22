@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/rlister/ecr-login",
+	"ImportPath": "github.com/evenco/ecr-login",
 	"GoVersion": "go1.5.1",
 	"Deps": [
 		{
