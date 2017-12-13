@@ -2,13 +2,16 @@ package main
 
 import (
 	"encoding/base64"
-	// "github.com/evenco/ecr-login/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws"
-	"github.com/evenco/ecr-login/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/session"
-	"github.com/evenco/ecr-login/Godeps/_workspace/src/github.com/aws/aws-sdk-go/service/ecr"
+	"fmt"
 	"os"
 	"strings"
 	"text/template"
 	"time"
+
+	"github.com/evenco/ecr-login/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws"
+	"github.com/evenco/ecr-login/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/ec2metadata"
+	"github.com/evenco/ecr-login/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/session"
+	"github.com/evenco/ecr-login/Godeps/_workspace/src/github.com/aws/aws-sdk-go/service/ecr"
 )
 
 type Auth struct {
@@ -47,18 +50,48 @@ func getTemplate() *template.Template {
 	return tmpl
 }
 
-func main() {
-	svc := ecr.New(session.New())
+// if AWS_REGION not set, infer from instance metadata
+func getRegion(sess *session.Session) string {
+	region, exists := os.LookupEnv("AWS_REGION")
+	if !exists {
+		ec2region, err := ec2metadata.New(sess).Region()
+		if err != nil {
+			fmt.Printf("AWS_REGION not set and unable to fetch region from instance metadata: %s\n", err.Error())
+			os.Exit(1)
+		}
+		region = ec2region
+	}
+	return region
+}
 
-	// this would be how to get tokens for multiple registries
-	// params := &ecr.GetAuthorizationTokenInput{
-	// 	RegistryIds: []*string{
-	// 		aws.String("123"),
-	// 		aws.String("456"),
-	// 	},
-	// }
-	resp, err := svc.GetAuthorizationToken(nil)
-	check(err)
+// get list of registries from env, leave empty for default
+func getRegistryIds() []*string {
+	var registryIds []*string
+	registries, exists := os.LookupEnv("REGISTRIES")
+	if exists {
+		for _, registry := range strings.Split(registries, ",") {
+			registryIds = append(registryIds, aws.String(registry))
+		}
+	}
+	return registryIds
+}
+
+func main() {
+	// configure aws client
+	sess := session.New()
+	svc := ecr.New(sess, aws.NewConfig().WithMaxRetries(10).WithRegion(getRegion(sess)))
+
+	// this lets us handle multiple registries
+	params := &ecr.GetAuthorizationTokenInput{
+		RegistryIds: getRegistryIds(),
+	}
+
+	// request the token
+	resp, err := svc.GetAuthorizationToken(params)
+	if err != nil {
+		fmt.Printf("Error authorizing: %s\n", err.Error())
+		os.Exit(1)
+	}
 
 	// fields to send to template
 	fields := make([]Auth, len(resp.AuthorizationData))
