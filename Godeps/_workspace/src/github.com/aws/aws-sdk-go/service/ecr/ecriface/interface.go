@@ -4,7 +4,7 @@
 package ecriface
 
 import (
-	"github.com/aws/aws-sdk-go/aws/request"
+	"github.com/evenco/ecr-login/Godeps/_workspace/src/github.com/aws/aws-sdk-go/aws/request"
 	"github.com/evenco/ecr-login/Godeps/_workspace/src/github.com/aws/aws-sdk-go/service/ecr"
 )
 
